@@ -1,17 +1,27 @@
 # UI Automation Framework for Pelago Website
 
-A comprehensive Selenium-based UI automation testing framework for the Pelago travel website, built with Python and pytest. This framework follows the Page Object Model (POM) design pattern and includes robust test reporting capabilities.
+A comprehensive Selenium-based UI automation testing framework for the Pelago travel website, built with Python and pytest. This framework follows the Page Object Model (POM) design pattern and includes advanced features like cloud storage integration, automated email notifications, and intelligent report parsing.
 
 ## 🚀 Features
 
+### 🔧 Core Testing Features
 - **Multi-browser Support**: Chrome, Firefox, and Safari
 - **Cross-environment Testing**: Support for PROD and QA environments
 - **Page Object Model**: Clean separation of test logic and page interactions
 - **Headless Mode**: Option to run tests in headless mode for CI/CD
-- **Detailed Reporting**: HTML reports with custom formatting and logging
+- **Parallel Test Execution**: Support for distributed testing with pytest-xdist
 - **Robust Element Handling**: Advanced wait strategies and popup handling
 - **API Validation**: Status code validation for links and images
 - **Custom Logging**: Comprehensive logging with timestamps and file output
+
+### 📊 Advanced Reporting & Notifications
+- **HTML Report Generation**: Beautiful, responsive HTML reports with detailed test results
+- **AWS S3 Integration**: Automatic upload of test reports to S3 with timestamped URLs
+- **Email Notifications**: Automated email alerts with professional HTML templates
+
+### ☁️ Cloud Integration
+- **AWS S3 Storage**: Secure cloud storage for test reports with public access URLs
+- **Gmail API Integration**: Professional email notifications via Google Cloud Platform
 
 ## 📁 Project Structure
 
@@ -29,6 +39,8 @@ UIAutomationPelagoWebsite/
 │   ├── assertion_methods.py   # Custom assertion utilities
 │   ├── custom_logger.py       # Logging configuration
 │   └── driver_helpers.py      # WebDriver utilities and helper functions
+├── LogFiles/                  # Test execution logs
+│   └── Logs_*.log            # Timestamped log files
 ├── Pages/
 │   ├── basepage.py           # Base page class with common methods
 │   ├── homepage.py           # Homepage page object
@@ -38,7 +50,15 @@ UIAutomationPelagoWebsite/
 │   ├── test_homepage.py      # Homepage test scenarios
 │   └── test_cart_page.py     # Cart functionality tests
 └── Utility/
-    └── api_services.py       # API utility functions
+    ├── api_services.py       # API utility functions
+    ├── mail_utils.py         # Email generation and report parsing utilities
+    ├── email_template.html   # Professional HTML email template
+    ├── AWS/
+    │   └── s3_methods.py     # AWS S3 upload functionality
+    └── GCP/
+        ├── gmail_methods.py  # Gmail API integration
+        ├── practice-automation-credentials.json  # GCP service credentials
+        └── token.json        # OAuth2 token storage
 ```
 
 ## 🛠️ Setup and Installation
@@ -48,6 +68,8 @@ UIAutomationPelagoWebsite/
 - Python 3.7+
 - pip (Python package installer)
 - Chrome/Firefox/Safari browser installed
+- AWS Account (for S3 report storage)
+- Google Cloud Platform Account (for Gmail notifications)
 
 ### Installation
 
@@ -67,6 +89,42 @@ UIAutomationPelagoWebsite/
    ```bash
    pip install -r requirements.txt
    ```
+
+### 🔑 Cloud Services Setup
+
+#### AWS S3 Configuration
+
+1. **Create AWS Account**, set up S3 bucket and update the bucket name from `practice-automation`
+2. **Create IAM User** with S3 permissions
+3. **Set Environment Variables**:
+   ```bash
+   export AWS_ACCESS_KEY_ID="your-access-key"
+   export AWS_SECRET_ACCESS_KEY="your-secret-key"
+   ```
+   Or create a `.env` file:
+   ```
+   AWS_ACCESS_KEY_ID=your-access-key
+   AWS_SECRET_ACCESS_KEY=your-secret-key
+   ```
+
+#### Google Cloud Platform (Gmail API) Setup
+
+1. **Create GCP Project** and enable Gmail API
+2. **Create OAuth2 Credentials** and download JSON file
+3. **Place credentials** as `Utility/GCP/practice-automation-credentials.json`
+4. **First run** will prompt for authentication and create `token.json`
+
+### 📦 Key Dependencies
+
+The framework uses these major packages:
+- **selenium**: Web browser automation
+- **pytest**: Testing framework with parallel execution support
+- **boto3**: AWS SDK for S3 integration  
+- **google-api-python-client**: Gmail API integration
+- **beautifulsoup4**: HTML parsing for report extraction
+- **pytest-html**: HTML report generation
+- **pytest-xdist**: Parallel test execution
+- **python-dotenv**: Environment variable management
 
 ## 🎯 Usage
 
@@ -163,6 +221,9 @@ Tests automatically generate HTML reports with detailed results:
 ```bash
 # Generate HTML report (default behavior)
 pytest --html=new_report.html --self-contained-html
+
+# With automatic S3 upload and email notification (add to conftest.py)
+pytest --html=new_report.html --self-contained-html && python -c "from Utility.mail_utils import upload_report_and_send_mail; upload_report_and_send_mail()"
 ```
 
 ## 🧪 Test Scenarios
@@ -215,22 +276,42 @@ The framework implements the Page Object Model pattern:
 - **pytest.ini**: Test markers, logging configuration
 - **locators.py**: Centralized element locators using XPath
 
+### Utility Modules
+
+- **mail_utils.py**: Email generation, report parsing, and notification orchestration
+- **s3_methods.py**: AWS S3 integration for report storage
+- **gmail_methods.py**: Gmail API integration for email notifications
+- **email_template.html**: Professional, responsive HTML email template
+
 ## 📊 Logging and Reporting
 
 ### Logging Features
 
-- Automatic log file generation with timestamps
+- Automatic log file generation with timestamps in `LogFiles/` directory
 - Console and file logging with different levels
 - Detailed element interaction logging
 - Error tracking and debugging information
+- Structured logging for cloud integration
 
-### HTML Reports
+### Advanced HTML Reports
 
-- Custom HTML reports with test descriptions
+- Custom HTML reports with test descriptions and configuration details
 - Pass/fail status with detailed error messages
 - Execution time and environment information
-- Screenshots on failure (can be extended)
+- Browser and test environment metadata
+- Responsive design for desktop and mobile viewing
+- Automatic S3 upload with public URLs
 
+### Email Notifications
+
+- **Professional Templates**: Beautiful, responsive HTML email templates
+- **Comprehensive Metrics**: Test counts, success rates, execution times
+- **Environment Details**: Browser, environment, and timestamp information
+- **Direct Links**: One-click access to detailed S3-hosted reports
+
+### Support
+
+For issues and feature requests, contact **Anshul Bidhuri** or create an issue in the repository.
 
 ## 📄 License
 
@@ -238,6 +319,7 @@ This project is created by **Anshul Bidhuri** for UI automation testing of the P
 
 ---
 
-**Framework Version**: 1.0  
-**Last Updated**: Aug 2025  
-**Author**: Anshul Bidhuri
+**Framework Version**: 2.0  
+**Last Updated**: August 2025  
+**Author**: Anshul Bidhuri  
+**Features**: Multi-browser testing, Cloud integration, Automated notifications, Advanced reporting

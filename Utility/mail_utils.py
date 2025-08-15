@@ -5,6 +5,9 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from Utility.AWS.s3_methods import upload_report_to_s3
 from Utility.GCP.gmail_methods import send_mail
+from Helpers import custom_logger
+
+log = custom_logger.get_logger()
 
 
 def generate_email_html(report_data: Dict[str, Any]) -> str:
@@ -230,7 +233,7 @@ def parse_pytest_html_report() -> Dict[str, Any]:
         return result
         
     except Exception as e:
-        print(f"Error parsing pytest HTML report: {str(e)}")
+        log.error(f"Error parsing pytest HTML report: {str(e)}")
         return {
             'total_tests': 0,
             'passed_tests': 0,
@@ -274,3 +277,5 @@ def upload_report_and_send_mail():
         subject = f"Pelago UI Automation Report | {current_time}"
         email_body = generate_email_body_from_report(s3_url)
         send_mail(subject, email_body)
+    else:
+        log.error("Failed to upload report to S3.")

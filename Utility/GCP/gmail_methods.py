@@ -27,7 +27,7 @@ def create_message(sender, to, subject, html_content):
 def send_mail(subject, html_body):
     creds = None
     if os.path.exists(token_json_path):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        creds = Credentials.from_authorized_user_file(token_json_path, SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())

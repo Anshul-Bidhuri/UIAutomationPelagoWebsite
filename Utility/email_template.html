@@ -23,6 +23,35 @@
             overflow: hidden;
         }
         
+        /* Desktop full-screen styles */
+        @media screen and (min-width: 1024px) {
+            .container {
+                max-width: 90%;
+                margin: 20px auto;
+            }
+            
+            .content {
+                padding: 40px 50px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 25px;
+                max-width: none;
+            }
+            
+            .test-details {
+                padding: 35px;
+            }
+        }
+        
+        /* Extra large screens */
+        @media screen and (min-width: 1400px) {
+            .container {
+                max-width: 1200px;
+            }
+        }
+        
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
