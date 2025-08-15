@@ -1,8 +1,10 @@
 import os
 import re
-from datetime import datetime
 from typing import Dict, Any
+from datetime import datetime
 from bs4 import BeautifulSoup
+from Utility.AWS.s3_methods import upload_report_to_s3
+from Utility.GCP.gmail_methods import send_mail
 
 
 def generate_email_html(report_data: Dict[str, Any]) -> str:
@@ -46,9 +48,6 @@ def generate_email_html(report_data: Dict[str, Any]) -> str:
         test_status = "mixed"
         test_status_text = "Mixed Results ⚠️"
     
-    # Generate timestamp
-    timestamp = datetime.now().strftime("%B %d, %Y at %I:%M %p")
-    
     # Replace placeholders with actual data
     replacements = {
         '{TEST_STATUS}': test_status,
@@ -61,7 +60,8 @@ def generate_email_html(report_data: Dict[str, Any]) -> str:
         '{TEST_ENVIRONMENT}': report_data.get('test_environment', 'PROD'),
         '{EXECUTION_TIME}': report_data.get('execution_time', 'N/A'),
         '{SUCCESS_RATE}': str(success_rate),
-        '{REPORT_S3_URL}': report_data.get('report_s3_url', '#')
+        '{REPORT_S3_URL}': report_data.get('report_s3_url', '#'),
+        '{REPORT_TIMESTAMP}': report_data.get('report_timestamp', 'N/A')
     }
     
     # Apply all replacements
@@ -88,6 +88,7 @@ def parse_pytest_html_report() -> Dict[str, Any]:
             - execution_time: Test execution duration
             - browser_name: Browser used for testing
             - test_environment: Environment (PROD/QA)
+            - report_timestamp: When the report was generated
     """
     report_file_path = os.path.join(os.path.abspath(__file__ + "/../../"), 'new_report.html')
     try:
@@ -108,7 +109,8 @@ def parse_pytest_html_report() -> Dict[str, Any]:
             'rerun_tests': 0,
             'execution_time': 'N/A',
             'browser_name': 'N/A',
-            'test_environment': 'N/A'
+            'test_environment': 'N/A',
+            'report_timestamp': 'N/A'
         }
         
         # Parse filters section for test counts
@@ -219,6 +221,12 @@ def parse_pytest_html_report() -> Dict[str, Any]:
             elif 'prod' in text_content and 'environment' in text_content:
                 result['test_environment'] = 'PROD'
         
+        # Extract report generation timestamp
+        # Look for pattern: "Report generated on 15-Aug-2025 at 16:45:09 by pytest-html"
+        timestamp_match = re.search(r'Report generated on (\d{1,2}-\w{3}-\d{4} at \d{2}:\d{2}:\d{2})', html_content)
+        if timestamp_match:
+            result['report_timestamp'] = timestamp_match.group(1)
+        
         return result
         
     except Exception as e:
@@ -234,7 +242,8 @@ def parse_pytest_html_report() -> Dict[str, Any]:
             'rerun_tests': 0,
             'execution_time': 'N/A',
             'browser_name': 'NA',
-            'test_environment': 'NA'
+            'test_environment': 'NA',
+            'report_timestamp': 'N/A'
         }
 
 
@@ -256,3 +265,12 @@ def generate_email_body_from_report(report_s3_url: str = '#') -> str:
     
     # Generate and return email HTML
     return generate_email_html(parsed_data)
+
+
+def upload_report_and_send_mail():
+    s3_url = upload_report_to_s3()
+    if s3_url:
+        current_time = datetime.now().strftime("%d/%m/%Y %I:%M %p")
+        subject = f"Pelago UI Automation Report | {current_time}"
+        email_body = generate_email_body_from_report(s3_url)
+        send_mail(subject, email_body)
