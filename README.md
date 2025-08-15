@@ -239,5 +239,5 @@ This project is created by **Anshul Bidhuri** for UI automation testing of the P
 ---
 
 **Framework Version**: 1.0  
-**Last Updated**: 2024  
+**Last Updated**: Aug 2025  
 **Author**: Anshul Bidhuri

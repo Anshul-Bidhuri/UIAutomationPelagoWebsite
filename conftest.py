@@ -6,6 +6,15 @@ from Helpers import driver_helpers
 
 @pytest.fixture(scope="class")
 def initiate_browser_webdriver(request):
+    """
+    Pytest fixture that initializes and provides a WebDriver instance for test classes.
+    
+    Args:
+        request: Pytest request object containing command line options and test context.
+    
+    Returns:
+        WebDriver: Configured WebDriver instance based on command line options.
+    """
     browser_option = request.config.getoption("Browser")
     server_option = request.config.getoption("Server")
     headless_option = request.config.getoption("Headless")
@@ -20,6 +29,15 @@ def initiate_browser_webdriver(request):
 
 
 def pytest_addoption(parser):
+    """
+    Adds custom command line options for pytest execution.
+    
+    Args:
+        parser: Pytest argument parser for adding custom command line options.
+    
+    Returns:
+        None
+    """
     group = parser.getgroup("general")
     group._addoption(
         "-B",
@@ -42,16 +60,44 @@ def pytest_addoption(parser):
 
 
 def pytest_html_results_summary(prefix):
+    """
+    Customizes the HTML report summary section with framework information.
+    
+    Args:
+        prefix: List of HTML elements to be added to the report summary.
+    
+    Returns:
+        None
+    """
     prefix.extend([html.p("This UI Automation regression framework is created by ANSHUL BIDHURI")])
 
 
 def pytest_html_results_table_header(cells):
+    """
+    Customizes the HTML report table header by adding a Description column.
+    
+    Args:
+        cells: List of HTML table header cells to be modified.
+    
+    Returns:
+        None
+    """
     cells.insert(1, html.th("Description"))
     cells.pop(2)
     cells.pop()  # to remove last column name
 
 
 def pytest_html_results_table_row(report, cells):
+    """
+    Customizes HTML report table rows by adding test description data.
+    
+    Args:
+        report: Pytest test report object containing test execution details.
+        cells: List of HTML table cells to be modified.
+    
+    Returns:
+        None
+    """
     cells.insert(1, html.td(report.description))
     cells.pop(2)
     cells.pop()  # to remove last row values
@@ -59,6 +105,16 @@ def pytest_html_results_table_row(report, cells):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
+    """
+    Pytest hook that captures test function docstrings for HTML report descriptions.
+    
+    Args:
+        item: Pytest test item containing test function information.
+        call: Pytest call object containing test execution phase information.
+    
+    Returns:
+        None
+    """
     outcome = yield
     report = outcome.get_result()
     report.description = str(item.function.__doc__)

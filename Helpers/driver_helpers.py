@@ -191,6 +191,15 @@ def click_element(driver: WebDriver, locator: str = None, element: WebElement = 
 
 
 def initialize_chrome_driver(headless=False) -> WebDriver:
+    """
+    Initializes and configures a Chrome WebDriver instance with optimized settings for UI automation.
+    
+    Args:
+        headless (bool, optional): Whether to run Chrome in headless mode. Defaults to False.
+    
+    Returns:
+        WebDriver: Configured Chrome WebDriver instance ready for automation.
+    """
     options = webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
     options.add_argument("--disable-notifications")
@@ -203,6 +212,15 @@ def initialize_chrome_driver(headless=False) -> WebDriver:
 
 
 def initialize_safari_driver(headless=False) -> WebDriver:
+    """
+    Initializes and configures a Safari WebDriver instance for UI automation testing.
+    
+    Args:
+        headless (bool, optional): Whether to run Safari in headless mode. Defaults to False.
+    
+    Returns:
+        WebDriver: Configured Safari WebDriver instance ready for automation.
+    """
     options = webdriver.SafariOptions()
     driver = webdriver.Safari(options=options)
     driver.maximize_window()
@@ -212,6 +230,15 @@ def initialize_safari_driver(headless=False) -> WebDriver:
 
 
 def initialize_firefox_driver(headless=False) -> WebDriver:
+    """
+    Initializes and configures a Firefox WebDriver instance with optimized settings for UI automation.
+    
+    Args:
+        headless (bool, optional): Whether to run Firefox in headless mode. Defaults to False.
+    
+    Returns:
+        WebDriver: Configured Firefox WebDriver instance ready for automation.
+    """
     options = webdriver.FirefoxOptions()
     if headless:
         options.add_argument('--headless')
@@ -222,5 +249,15 @@ def initialize_firefox_driver(headless=False) -> WebDriver:
 
 
 def get_text_from_element(driver: WebDriver, locator: str) -> str:
+    """
+    Retrieves the visible text content from a web element after ensuring it's visible.
+    
+    Args:
+        driver (WebDriver): The Selenium WebDriver instance used to interact with the browser.
+        locator (str): The locator string to find the target element.
+    
+    Returns:
+        str: The visible text content of the element.
+    """
     element = wait_till_element_is_visible(driver, locator)
     return element.text
