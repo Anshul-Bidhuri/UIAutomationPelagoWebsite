@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Automation Test Report</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+        
+        .status-passed {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-failed {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-mixed {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 15px 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            min-width: 0;
+        }
+        
+        .summary-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .summary-label {
+            font-size: 14px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .test-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .test-details h3 {
+            margin: 0 0 15px 0;
+            color: #495057;
+            font-size: 18px;
+        }
+        
+        .test-info {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0px;
+            margin-bottom: 15px;
+        }
+        
+        .test-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .test-info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .test-info-value {
+            color: #6c757d;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin: 25px 0;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .timestamp {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        .framework-info {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .framework-info p {
+            margin: 0;
+            color: #1565c0;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header, .content, .footer {
+                padding: 20px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .summary-item {
+                padding: 12px 8px;
+            }
+            
+            .summary-number {
+                font-size: 24px;
+            }
+            
+            .test-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>Automation Test Report</h1>
+            <p>Pelago Website UI</p>
+        </div>
+        
+        <!-- Content Section -->
+        <div class="content">
+            <!-- Status Badge -->
+            <div class="status-badge status-{TEST_STATUS}">
+                {TEST_STATUS_TEXT}
+            </div>
+
+            <!-- Test Summary Grid -->
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-number">{TOTAL_TESTS}</div>
+                    <div class="summary-label">Total Tests</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number" style="color: #28a745;">{PASSED_TESTS}</div>
+                    <div class="summary-label">Passed</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number" style="color: #dc3545;">{FAILED_TESTS}</div>
+                    <div class="summary-label">Failed</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number" style="color: #ffc107;">{SKIPPED_TESTS}</div>
+                    <div class="summary-label">Skipped</div>
+                </div>
+            </div>
+
+            <!-- Test Details -->
+            <div class="test-details">
+                <h3>📊 Execution Details</h3>
+                <div class="test-info">
+                    <div class="test-info-item">
+                        <span class="test-info-label">Browser:</span>
+                        <span class="test-info-value">{BROWSER_NAME}</span>
+                    </div>
+                    <div class="test-info-item">
+                        <span class="test-info-label">Environment:</span>
+                        <span class="test-info-value">{TEST_ENVIRONMENT}</span>
+                    </div>
+                    <div class="test-info-item">
+                        <span class="test-info-label">Duration:</span>
+                        <span class="test-info-value">{EXECUTION_TIME}</span>
+                    </div>
+                    <div class="test-info-item">
+                        <span class="test-info-label">Success Rate:</span>
+                        <span class="test-info-value">{SUCCESS_RATE}%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <div class="button-container">
+                <a href="{REPORT_S3_URL}" class="cta-button" target="_blank">
+                    📋 View Detailed Report
+                </a>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>🤖 This report was generated automatically by the UI Automation Framework</p>
+            <p>Created by <strong>Anshul Bidhuri</strong> | Pelago Website Testing</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -59,17 +59,27 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_html_results_summary(prefix):
+def pytest_html_results_summary(prefix, session):
     """
     Customizes the HTML report summary section with framework information.
     
     Args:
         prefix: List of HTML elements to be added to the report summary.
+        session: Pytest session object containing configuration.
     
     Returns:
         None
     """
-    prefix.extend([html.p("This UI Automation regression framework is created by ANSHUL BIDHURI")])
+    # Get browser and environment from pytest config
+    browser = session.config.getoption("Browser", default="chrome")
+    server = session.config.getoption("Server", default="PROD")
+    headless = session.config.getoption("Headless", default=False)
+    
+    prefix.extend([
+        html.p("This UI Automation regression framework is created by ANSHUL BIDHURI"),
+        html.p(f"Browser: {browser.title()} | Environment: {server} | Headless: {headless}", 
+               id="test-config-info", style="color: #666; font-size: 14px; margin: 5px 0;")
+    ])
 
 
 def pytest_html_results_table_header(cells):
