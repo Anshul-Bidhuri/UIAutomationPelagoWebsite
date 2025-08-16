@@ -1,7 +1,11 @@
+import os
+import time
 import pytest
+import pytest_html
 from py.xml import html
 
 from Helpers import driver_helpers
+from Utility.recorder import FFmpegRecorder
 
 
 @pytest.fixture(scope="class")
@@ -57,6 +61,38 @@ def pytest_addoption(parser):
         default=False,
         help="Run in headless mode. Example: -H True",
     )
+
+
+@pytest.fixture(scope="function", autouse=True)
+def record_test(request):
+    """Fixture to record each test using FFmpeg"""
+    recording_folder = os.path.join(os.path.abspath(__file__ + "/../"), "Recordings")
+    # Create reports/recordings folder if not exists
+    os.makedirs(recording_folder, exist_ok=True)
+
+    # Generate unique filename
+    test_name = request.node.name
+    timestamp = time.strftime("%d%m%Y-%H%M%S")
+    video_file = f"{recording_folder}/{test_name}_{timestamp}.mp4"
+
+    # Store video file path on the test item for later access
+    request.node._video_file = video_file
+
+    # Start recording
+    recorder = FFmpegRecorder(filename=video_file)
+    try:
+        recorder.start()
+        yield  # Run the actual test
+    finally:
+        # Stop recording after test (ensure it stops even if test fails)
+        recorder.stop()
+        
+        # Verify video file was created
+        if not os.path.exists(video_file):
+            print(f"Warning: Video file was not created: {video_file}")
+        else:
+            file_size = os.path.getsize(video_file)
+            print(f"Video recorded: {video_file} ({file_size} bytes)")
 
 
 def pytest_html_results_summary(prefix, session):
@@ -116,7 +152,8 @@ def pytest_html_results_table_row(report, cells):
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """
-    Pytest hook that captures test function docstrings for HTML report descriptions.
+    Pytest hook that captures test function docstrings for HTML report descriptions
+    and attaches video recordings to failed/passed tests.
     
     Args:
         item: Pytest test item containing test function information.
@@ -128,3 +165,38 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
     report.description = str(item.function.__doc__)
+    
+    # Attach video to HTML report for all test outcomes
+    if report.when == "call":
+        # Get the video file path from the fixture if it exists
+        video_file = getattr(item, '_video_file', None)
+        if video_file and os.path.exists(video_file):
+            # Make video path relative to the report location
+            # Try to get the actual report path from config, fallback to current directory
+            html_path = getattr(item.config.option, 'htmlpath', 'new_report.html')
+            if html_path:
+                report_dir = os.path.dirname(os.path.abspath(html_path))
+            else:
+                report_dir = os.getcwd()
+            relative_video_path = os.path.relpath(video_file, report_dir)
+            
+            # Create HTML video element
+            video_html = f'''
+            <div style="margin: 10px 0;">
+                <h4>Test Recording:</h4>
+                <video width="640" height="480" controls>
+                    <source src="{relative_video_path}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            '''
+            
+            # Attach extra content to the report
+            # Use 'extras' instead of 'extra' for newer pytest-html versions
+            if hasattr(report, 'extras'):
+                report.extras.append(pytest_html.extras.html(video_html))
+            else:
+                # Fallback for older versions
+                extra = getattr(report, 'extra', [])
+                extra.append(pytest_html.extras.html(video_html))
+                report.extra = extra
